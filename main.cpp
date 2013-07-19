@@ -84,10 +84,23 @@ std::vector<long> mergesort(std::vector<long>& vec, int threads)
 
 int main()
 {
-	std::vector<long> v(1000000);
-	for (long i = 0; i < 1000000; ++i)
-		v[i] = (i * i) % 1000000;
-	v = mergesort(v, 1);
-	for (long i = 0; i < 1000000; ++i)
-		std::cout << v[i] << "\n";
+	const long VEC_SIZE = 1000000;
+	std::vector<long> v(VEC_SIZE);	// ~4MB
+
+	int num_threads;
+	double wall_timer;
+
+	for (num_threads = 1; num_threads <= 16; ++num_threads)
+	{
+		// перезаполнение вектора
+		for (long i = 0; i < VEC_SIZE; ++i)
+			v[i] = (i * i) % VEC_SIZE;
+
+		// собственно сортировка
+		wall_timer = omp_get_wtime();
+		v = mergesort(v, num_threads);
+		wall_timer = omp_get_wtime() - wall_timer;
+
+		std::cout << "threads: " << num_threads << "\ttime on wall: " <<  wall_timer << std::endl;
+	}
 }
